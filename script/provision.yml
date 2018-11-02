@@ -1,0 +1,115 @@
+---
+- hosts: all
+  vars:
+    git_repo: {{ world_repo }}
+  handlers:
+    - name: restart ssh
+      service:
+        name=sshd
+        state=restarted
+
+  tasks:
+    - name: Create new group
+      group:
+        name: steve
+
+    - name: Create new user
+      user:
+        name: steve
+        shell: bash
+        groups: steve,docker
+
+    - name: Create .ssh folder
+      file:
+        path: /home/steve/.ssh
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0700
+
+    - name: Upload SSH key for steve
+      copy:
+        src: /Users/ldesrosi/.ssh/minecraft
+        dest: /home/steve/.ssh/id_rsa
+        owner: steve
+        group: steve
+        mode: 0700    
+
+    - name: move authorization keys to user steve
+      copy:
+        src: ~/.ssh/authorized_keys
+        dest: /home/steve/.ssh/authorized_keys
+        owner: steve
+        group: steve
+        mode: 0700
+        remote_src: true
+
+    - name: Disable Password Authentication
+      lineinfile:
+            dest=/etc/ssh/sshd_config
+            regexp='^PasswordAuthentication'
+            line="PasswordAuthentication no"
+            state=present
+            backup=yes
+      notify:
+        - restart ssh
+  
+    - name: Disable Root Login
+      lineinfile:
+            dest=/etc/ssh/sshd_config
+            regexp='^PermitRootLogin'
+            line="PermitRootLogin no"
+            state=present
+            backup=yes
+      notify:
+        - restart ssh
+
+    - name: Creates directory
+      file: 
+        path: /src/minecraft/world
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0755
+
+    - name: Creates directory
+      file: 
+        path: /src/minecraft/script
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0755
+
+    - name: move server_scripts from local to remote
+      copy:
+        src: server_script/*.sh
+        dest: /src/minecraft/script
+        owner: steve
+        group: steve
+        mode: 0755
+
+    - name: Setup default git configuraiton
+      git_config:
+        name="{{ item.name }}"
+        scope=global
+        value="{{ item.value }}"
+      with_items:
+        - {name: "user.name",  value: "Minecraft" }
+        - {name: "user.email", value: "minecraft@{{ ansible_fqdn }}" }
+        - {name: "ui.color", value: "True" }
+      become: Yes
+      become_user: steve
+
+    - name: Download repository locally
+      git:
+        repo: "{{ git_repo }}"
+        dest: /src/minecraft/world
+        clone: yes
+        accept_hostkey: true
+      become: yes
+      become_user: steve
+
+    - name: Create minecraft container
+      command: bash /src/minecraft/script/startup.sh
+      become: yes
+      become_user: steve
