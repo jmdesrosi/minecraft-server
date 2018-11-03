@@ -2,6 +2,7 @@ variable "do_token" {}
 variable "pub_key" {}
 variable "pvt_key" {}
 variable "world_repo" {}
+variable "rcon_passwd" {}
 variable "ssh_fingerprint" {}
 variable "domain_name" {}
  
@@ -40,7 +41,7 @@ provisioner "remote-exec" {
   }
 
   provisioner "local-exec" {
-    command = "ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} --extra-vars \"world_repo=${var.world_repo}\" provision.yml" 
+    command = "ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} --extra-vars \"world_repo=${var.world_repo} rcon_passwd=${var.rcon_passwd}\" provision.yml" 
   }
 
   provisioner "local-exec" {

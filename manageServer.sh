@@ -25,7 +25,7 @@ function start() {
 function stop() {
     pushd script
 
-    terraform  destroy -auto-approve \
+    terraform destroy -auto-approve \
       -var "do_token=${DO_PAT}" \
       -var "pub_key=$SSH_PUB" \
       -var "pvt_key=$SSH_KEY" \

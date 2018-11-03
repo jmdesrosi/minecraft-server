@@ -2,6 +2,7 @@
 - hosts: all
   vars:
     git_repo: "{{ world_repo }}"
+    password: "{{ rcon_passwd }}"
   handlers:
     - name: restart ssh
       service:
@@ -110,6 +111,6 @@
       become_user: steve
 
     - name: Create minecraft container
-      command: bash /src/minecraft/script/startup.sh
+      command: bash /src/minecraft/script/startup.sh {{ password }}
       become: yes
       become_user: steve

@@ -12,4 +12,4 @@ function clearContainers () {
 
 clearContainers
 
-docker run -d --rm -p 25565:25565 -e EULA=TRUE -v /src/minecraft/world:/data --name mc itzg/minecraft-server
+docker run -d --rm -p 25565:25565 -e EULA=TRUE -e RCON_PASSWORD=$1 -v /src/minecraft/world:/data --name mc itzg/minecraft-server
