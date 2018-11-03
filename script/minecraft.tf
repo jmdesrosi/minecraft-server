@@ -1,6 +1,7 @@
 variable "do_token" {}
 variable "pub_key" {}
 variable "pvt_key" {}
+variable "world_repo" {}
 variable "ssh_fingerprint" {}
 variable "domain_name" {}
  
@@ -39,7 +40,12 @@ provisioner "remote-exec" {
   }
 
   provisioner "local-exec" {
-    command = "ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} --extra-vars \"world_repo=$WORLD_REPO\" provision.yml" 
+    command = "ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} --extra-vars \"world_repo=${var.world_repo}\" provision.yml" 
+  }
+
+  provisioner "local-exec" {
+    when = "destroy"
+    command = "ansible-playbook -i inventory -u steve deprovision.yml" 
   }
 }
 

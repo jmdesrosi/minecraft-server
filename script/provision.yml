@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars:
-    git_repo: {{ world_repo }}
+    git_repo: "{{ world_repo }}"
   handlers:
     - name: restart ssh
       service:
@@ -16,7 +16,7 @@
     - name: Create new user
       user:
         name: steve
-        shell: bash
+        shell: /bin/bash
         groups: steve,docker
 
     - name: Create .ssh folder
@@ -82,7 +82,7 @@
 
     - name: move server_scripts from local to remote
       copy:
-        src: server_script/*.sh
+        src: ./server_script/
         dest: /src/minecraft/script
         owner: steve
         group: steve

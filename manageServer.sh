@@ -15,26 +15,21 @@ function start() {
       -var "do_token=${DO_PAT}" \
       -var "pub_key=$SSH_PUB" \
       -var "pvt_key=$SSH_KEY" \
+      -var "world_repo=$WORLD_REPO" \
       -var "ssh_fingerprint=$SSH_FINGERPRINT" \
       -var "domain_name=$DOMAIN_NAME"
 
-    dscacheutil -flushcache
-    sudo killall -HUP mDNSResponder
-
     popd
-
-    startMonitor
 }
 
 function stop() {
     pushd script
 
-    ansible-playbook -i inventory -u steve deprovision.yml
-
     terraform  destroy -auto-approve \
       -var "do_token=${DO_PAT}" \
       -var "pub_key=$SSH_PUB" \
       -var "pvt_key=$SSH_KEY" \
+      -var "world_repo=$WORLD_REPO" \
       -var "ssh_fingerprint=$SSH_FINGERPRINT" \
       -var "domain_name=$DOMAIN_NAME"
 
@@ -44,6 +39,11 @@ function stop() {
 function setup() {
     generateLocalrc
 
+    export os_arch=$(uname -s | tr '[:upper:]' '[:lower:]')
+    curl -o terraform.zip "https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_${os_arch}_amd64.zip"
+    unzip terraform.zip
+    rm terraform.zip
+
     pushd app
     npm install
     popd
@@ -52,7 +52,7 @@ function setup() {
 
 function startMonitor() {
     pushd app
-    node monitor.js
+    node monitor.js &
     popd
 }
 
@@ -62,11 +62,15 @@ function generateLocalrc() {
         echo "export SSH_PUB=$HOME/.ssh/id_rsa.pub" >> localrc.sh
         echo "export SSH_KEY=$HOME/.ssh/id_rsa" >> localrc.sh
         echo "export DOMAIN_NAME=<DOMAIN-NAME>" >> localrc.sh
-        echo "export REPO=<REPO>" >> localrc.sh
         echo "export WORLD_REPO=<WORLD-REPO>" >> localrc.sh
 
         chmod +x localrc.sh
     fi
+}
+
+function flushDNS() {
+    dscacheutil -flushcache
+    sudo killall -HUP mDNSResponder
 }
 
 case "$1" in
@@ -76,11 +80,17 @@ case "$1" in
  start)
    start
    ;;
+ monitor)
+   startMonitor
+   ;;
  setup)
    setup
    ;;
+ dns)
+   flushDNS
+   ;;
  *)
-   echo "Usage: manageServer.sh {start|stop|setup}" >&2
+   echo "Usage: manageServer.sh {start|stop|monitor|dns|setup}" >&2
    exit 3
    ;;
 esac

@@ -3,4 +3,4 @@
 
   tasks:
     - name: Shutdown minecraft container
-      command: bash /src/minecraft/server/script/shutdown.sh
+      command: bash /src/minecraft/script/shutdown.sh
