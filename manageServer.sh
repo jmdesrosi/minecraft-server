@@ -15,6 +15,7 @@ function start() {
       -var "do_token=${DO_PAT}" \
       -var "pub_key=$SSH_PUB" \
       -var "pvt_key=$SSH_KEY" \
+      -var "rcon_passwd=$RCON_PASSWORD" \
       -var "world_repo=$WORLD_REPO" \
       -var "ssh_fingerprint=$SSH_FINGERPRINT" \
       -var "domain_name=$DOMAIN_NAME"
@@ -29,6 +30,7 @@ function stop() {
       -var "do_token=${DO_PAT}" \
       -var "pub_key=$SSH_PUB" \
       -var "pvt_key=$SSH_KEY" \
+      -var "rcon_passwd=$RCON_PASSWORD" \
       -var "world_repo=$WORLD_REPO" \
       -var "ssh_fingerprint=$SSH_FINGERPRINT" \
       -var "domain_name=$DOMAIN_NAME"
@@ -63,6 +65,7 @@ function generateLocalrc() {
         echo "export SSH_KEY=$HOME/.ssh/id_rsa" >> localrc.sh
         echo "export DOMAIN_NAME=<DOMAIN-NAME>" >> localrc.sh
         echo "export WORLD_REPO=<WORLD-REPO>" >> localrc.sh
+        echo "export RCON_PASSWORD=<PASSWORD>" >> localrc.sh
 
         chmod +x localrc.sh
     fi
