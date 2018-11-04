@@ -14,6 +14,9 @@
     "postinstall": "terraform init",
     "monitor": "node minecraft-server.js &",
     "apply": "terraform apply -auto-approve -var-file=./minecraft.tfvars.json",
-    "destroy": "terraform destroy -auto-approve -var-file=./minecraft.tfvars.json"
+    "destroy": "terraform destroy -auto-approve -var-file=./minecraft.tfvars.json",
+    "start" : "npm run apply",
+    "stop": "npm run destroy",
+    "poststart": "npm run monitor"
   }
 }

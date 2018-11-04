@@ -5,8 +5,8 @@ const config = require('./minecraft.tfvars.json');
 const app = express();
 const port = 3000;
 
-const check_interval = config.check_interval;
-const shutdown_timeout = config.shutdown_timeout;
+const check_interval = config.check_interval * 1000; //Convert from sec to ms
+const shutdown_timeout = config.shutdown_timeout * 1000; //Convert from sec to ms
 
 function shutdownServer() {
 	console.log("\nShutting down server.");
