@@ -1,6 +1,7 @@
 variable "do_token" {}
 variable "pub_key" {}
 variable "pvt_key" {}
+variable "git_pvt_key" {}
 variable "world_repo" {}
 variable "rcon_passwd" {}
 variable "ssh_fingerprint" {}
@@ -18,35 +19,42 @@ resource "digitalocean_droplet" "minecraft" {
     ssh_keys = [
       "${var.ssh_fingerprint}"
     ]
-
   connection {
       user = "root"
       type = "ssh"
       private_key = "${file(var.pvt_key)}"
       timeout = "2m"
   }
-
-provisioner "remote-exec" {
-    inline = ["sudo apt-get -y install python"]
-
+  provisioner "remote-exec" {
+    inline = [
+       "mkdir -p /src/minecraft/script",
+       "apt install -y ansible"
+    ]
+  }
+  provisioner "file" {
+    source      = "server_script/"
+    destination = "/src/minecraft/script"
+  }
+  provisioner "file" {
+    source      = "${var.git_pvt_key}"
+    destination = "/src/minecraft/script/minecraft.key"
+  } 
+  provisioner "remote-exec" {
+    inline = [
+       "cd /src/minecraft/script/ && ansible-playbook -u root -i '127.0.0.1,' --connection=local --extra-vars \"world_repo=${var.world_repo} rcon_passwd=${var.rcon_passwd}\" minecraft-start.yml" 
+    ]
+  }
+  provisioner "remote-exec" {
     connection {
-      type        = "ssh"
-      user        = "root"
-      private_key = "${file(var.pvt_key)}"
+        user = "steve"
+        type = "ssh"
+        private_key = "${file(var.pvt_key)}"
+        timeout = "2m"
     }
-  }
-
-  provisioner "local-exec" {
-    command = "echo '${self.name} ansible_host=${self.ipv4_address} ansible_python_interpreter=/usr/bin/python3' > inventory"
-  }
-
-  provisioner "local-exec" {
-    command = "ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} --extra-vars \"world_repo=${var.world_repo} rcon_passwd=${var.rcon_passwd}\" provision.yml" 
-  }
-
-  provisioner "local-exec" {
+    inline = [
+      "cd /src/minecraft/script/ && ansible-playbook -u steve -i '127.0.0.1,' --connection=local minecraft-stop.yml" 
+    ]
     when = "destroy"
-    command = "ansible-playbook -i inventory -u steve deprovision.yml" 
   }
 }
 
@@ -63,7 +71,7 @@ resource "digitalocean_record" "CNAME-server" {
   value = "@"
 }
 resource "digitalocean_firewall" "minecraft" {
-  name = "only-22-25565"
+  name = "port-22-25565-25575"
 
   droplet_ids = ["${digitalocean_droplet.minecraft.id}"]
 

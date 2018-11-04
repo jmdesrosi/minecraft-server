@@ -1,0 +1,19 @@
+{
+  "name": "monitor",
+  "version": "1.0.0",
+  "description": "Monitoring job for Minecraft server",
+  "author": "Luc Desrosiers",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "express": "^4.13.3",
+    "gamedig": "^1.0.46",
+    "terraform-npm": "^0.2.6"
+  },
+  "main": "minecraft-server.js",
+  "scripts": {
+    "postinstall": "terraform init",
+    "monitor": "node minecraft-server.js &",
+    "apply": "terraform apply -auto-approve -var-file=./minecraft.tfvars.json",
+    "destroy": "terraform destroy -auto-approve -var-file=./minecraft.tfvars.json"
+  }
+}

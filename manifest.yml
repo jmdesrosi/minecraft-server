@@ -1,0 +1,4 @@
+---
+applications:
+- name: minecraft-server
+  command: node minecraft-server.js

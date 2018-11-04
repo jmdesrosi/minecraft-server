@@ -3,6 +3,7 @@
   vars:
     git_repo: "{{ world_repo }}"
     password: "{{ rcon_passwd }}"
+
   handlers:
     - name: restart ssh
       service:
@@ -30,11 +31,14 @@
 
     - name: Upload SSH key for steve
       copy:
-        src: /Users/ldesrosi/.ssh/minecraft
+        src: /src/minecraft/script/minecraft.key
         dest: /home/steve/.ssh/id_rsa
         owner: steve
         group: steve
         mode: 0700    
+
+    - name: Remove old files foo
+      file: path=/src/minecraft/script/minecraft.key state=absent
 
     - name: move authorization keys to user steve
       copy:
@@ -43,7 +47,6 @@
         owner: steve
         group: steve
         mode: 0700
-        remote_src: true
 
     - name: Disable Password Authentication
       lineinfile:
@@ -77,14 +80,6 @@
       file: 
         path: /src/minecraft/script
         state: directory
-        owner: steve
-        group: steve
-        mode: 0755
-
-    - name: move server_scripts from local to remote
-      copy:
-        src: ./server_script/
-        dest: /src/minecraft/script
         owner: steve
         group: steve
         mode: 0755

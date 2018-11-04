@@ -5,3 +5,7 @@
 ## Setup DNS NS 
 ## Create localrc.sh
 ## Run Setup
+
+
+    dscacheutil -flushcache
+    sudo killall -HUP mDNSResponder

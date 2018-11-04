@@ -1,0 +1,12 @@
+{
+    "do_token": "digital ocean API token",
+    "pub_key": "Location of public key to SSH into the server",
+    "pvt_key": "Location of private key the system will use to SSH into the server",
+    "git_pvt_key": "Location of private key which is recognized by the minecraft git repo",
+    "domain_name": "Domain name to register the instance under.",
+    "world_repo": "git@github.com:<org>/repo.git -- The git repo that contains the minecraft world, using SSH as protocol",
+    "rcon_passwd": "Password to set on the RCON port",
+    "ssh_fingerprint": "SSH finger print of the public key pub_key, used to set the server root authorized keys",
+    "check_interval" : 120,
+    "shutdown_timeout" : 600
+}
