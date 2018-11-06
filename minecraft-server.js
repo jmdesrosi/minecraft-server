@@ -7,11 +7,12 @@ const port = 3000;
 
 const check_interval = config.check_interval * 1000; //Convert from sec to ms
 const shutdown_timeout = config.shutdown_timeout * 1000; //Convert from sec to ms
+const terraform = config.terraform || 'terraform';
 
 function shutdownServer() {
 	console.log("\nShutting down server.");
 
-	const ls = spawn('terraform', ['destroy', '-auto-approve', '-var-file=./minecraft.tfvars.json']);
+	const ls = spawn(terraform, ['destroy', '-auto-approve', '-var-file=./minecraft.tfvars.json']);
 
 	ls.stdout.on('data', (data) => {
 	  console.log(`stdout: ${data}`);
