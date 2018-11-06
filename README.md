@@ -25,15 +25,3 @@ It sets up all of the required infrastructure (VM, Firewall, DNS record) and the
     dscacheutil -flushcache
     sudo killall -HUP mDNSResponder
 
-{
-    "do_token": "47adb1b22431726ce33513590095cb4087283525df2fad87127aed7645525db2",
-    "pub_key": "/Users/ldesrosi/.ssh/id_rsa.pub",
-    "pvt_key": "/Users/ldesrosi/.ssh/id_rsa",
-    "git_pvt_key": "/Users/ldesrosi/.ssh/minecraft",
-    "domain_name": "slothcraft.co.uk",
-    "world_repo": "git@github.com:ldesrosi/kijilas-server.git",
-    "rcon_passwd": "BestGame4U",
-    "ssh_fingerprint": "4c:ad:ef:e0:14:d1:a5:01:6c:32:4e:9c:2a:96:3c:c5"
-    "check_interval" : 6000,
-    "shutdown_timeout" : 6000
-}
