@@ -5,8 +5,9 @@
     "git_pvt_key": "Location of private key which is recognized by the minecraft git repo",
     "domain_name": "Domain name to register the instance under.",
     "world_repo": "git@github.com:<org>/repo.git -- The git repo that contains the minecraft world, using SSH as protocol",
-    "rcon_passwd": "Password to set on the RCON port",
     "ssh_fingerprint": "SSH finger print of the public key pub_key, used to set the server root authorized keys",
+    "rcon_passwd": "Password to set on the RCON port",
     "check_interval" : 120,
-    "shutdown_timeout" : 600
+    "shutdown_timeout" : 600,
+    "terraform": "terraform"
 }
