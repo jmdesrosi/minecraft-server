@@ -77,8 +77,8 @@ Stopping the server can be done by running this command:
 `npm stop`
 
 ## DNS not picking the new IP?
-If you have an issue on Mac whereby the DNS is pointing to the wrong IP, you can try to run these commands:
-    dscacheutil -flushcache
-    sudo killall -HUP mDNSResponder
+If you have an issue on Mac whereby the DNS is pointing to the wrong IP, you can try to run these commands:  
+`dscacheutil -flushcache`  
+`sudo killall -HUP mDNSResponder`  
 Keep in mind that the TTL (Time To Live) of DNS entries is set to 1800 or 30 minutes.  This means that if you are frequently provisioning the server to test, it might take some time for the DNS to properly reflect the latest IP address.
 
