@@ -8,5 +8,5 @@
 **/inventory
 **/*.retry
 **/node_modules/
-**/*.tfvars.json
+**/*.tfvars*
 **/package-lock.json

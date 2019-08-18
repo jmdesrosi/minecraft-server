@@ -6,7 +6,10 @@ variable "world_repo" {}
 variable "rcon_passwd" {}
 variable "ssh_fingerprint" {}
 variable "domain_name" {}
- 
+variable "check_interval" {}
+variable "shutdown_timeout" {}
+variable "terraform" {}
+
 provider "digitalocean" {
   token = "${var.do_token}"
 }
