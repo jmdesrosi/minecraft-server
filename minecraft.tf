@@ -32,29 +32,30 @@ variable "terraform" {
 }
 
 provider "digitalocean" {
-  token = var.do_token
+  token = "${var.do_token}"
 }
 
 resource "digitalocean_droplet" "minecraft" {
-  image              = "docker-18-04"
+  image              = "docker-20-04"
   name               = "minecraft"
   region             = "lon1"
-  size               = "s-4vcpu-8gb"
+  size               = "m-4vcpu-32gb"
   private_networking = false
   ssh_keys = [
-    var.ssh_fingerprint,
+    "${var.ssh_fingerprint}",
   ]
   connection {
-    host        = self.ipv4_address
+    host        = "${self.ipv4_address}"
     user        = "root"
     type        = "ssh"
-    private_key = file(var.pvt_key)
+    private_key = "${file(var.pvt_key)}"
     timeout     = "2m"
   }
   provisioner "remote-exec" {
     inline = [
       "mkdir -p /src/minecraft/script",
-      "apt install -y ansible",
+      "apt-get update -y && apt-get install -y python3-pip",
+      "pip3 install ansible"
     ]
   }
   provisioner "file" {
@@ -62,7 +63,7 @@ resource "digitalocean_droplet" "minecraft" {
     destination = "/src/minecraft/script"
   }
   provisioner "file" {
-    source      = var.git_pvt_key
+    source      = "${var.git_pvt_key}"
     destination = "/src/minecraft/script/minecraft.key"
   }
   provisioner "remote-exec" {
@@ -72,10 +73,10 @@ resource "digitalocean_droplet" "minecraft" {
   }
   provisioner "remote-exec" {
     connection {
-      host        = self.ipv4_address
+      host        = "${self.ipv4_address}"
       user        = "steve"
       type        = "ssh"
-      private_key = file(var.pvt_key)
+      private_key = "${file(var.pvt_key)}"
       timeout     = "2m"
     }
     inline = [
