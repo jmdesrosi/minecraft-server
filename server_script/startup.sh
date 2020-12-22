@@ -17,5 +17,5 @@ if [ -f /src/minecraft/world/startup.sh ]; then
   ./startup.sh
   popd
 else 
-  docker run -d --rm -p 25565:25565 -e EULA=TRUE -e RCON_PASSWORD=$1 -e INIT_MEMORY=4g -e MAX_MEMORY=16g -e USE_AIKAR_FLAGS=true -e VIEW_DISTANCE=8 -e GUI=FALSE -v /src/minecraft/world:/data --name mc itzg/minecraft-server
+  docker run -d --rm -p 25565:25565 -e EULA=TRUE -e RCON_PASSWORD=$1 -e INIT_MEMORY=8g -e MAX_MEMORY=16g -e USE_AIKAR_FLAGS=true -e VIEW_DISTANCE=8 -e GUI=FALSE -v /src/minecraft/world:/data --name mc itzg/minecraft-server
 fi
