@@ -1,9 +1,9 @@
 const Gamedig = require('gamedig');
-const express = require('express');
 const { spawn } = require('child_process');
+const SingleInstance = require('single-instance');
+
+const process_lock  = new SingleInstance('minecraft-monitoring');
 const config = require('./minecraft.tfvars.json');
-const app = express();
-const port = 3000;
 
 const check_interval = config.check_interval * 1000; //Convert from sec to ms
 const shutdown_timeout = config.shutdown_timeout * 1000; //Convert from sec to ms
@@ -56,12 +56,13 @@ function checkServerPopulation() {
 
 var timeoutObject = null;
 
-setInterval(function () {
-	checkServerPopulation();
-}, check_interval); 
-
-app.get('/', (req, res) => res.send('Minecraft monitoring!'));
-app.listen(port, () => console.log(`Minecraft monitoring app listening on port ${port}!`));
-
+process_lock.lock().then(() => {
+    setInterval(function () {
+		checkServerPopulation();
+	}, check_interval); 
+}).catch(err => {
+	console.log(err); // it will print out 'An application is already running'
+	process.exit();
+});
 
 
