@@ -33,6 +33,7 @@ function checkServerPopulation() {
 		type: 'minecraftping',
 		host: config.domain_name
 	}).then((state) => {
+		console.log("There are " + state.players.length + " players online.");
 		if (state.players.length == 0) {
 			if (timeoutObject == null) {
 				console.log("Server is empty, starting countdown");
@@ -44,7 +45,7 @@ function checkServerPopulation() {
 			}
 		} else {
 			if (timeoutObject != null) {
-				console.log("\nServer has users, cancelling countdown");
+				console.log("Server has users, cancelling countdown");
 				clearTimeout(timeoutObject);
 				timeoutObject = null;
 			}
@@ -55,8 +56,8 @@ function checkServerPopulation() {
 }
 
 var timeoutObject = null;
-
 process_lock.lock().then(() => {
+	console.log("\nStarting to monitor server " + config.domain_name);
     setInterval(function () {
 		checkServerPopulation();
 	}, check_interval); 

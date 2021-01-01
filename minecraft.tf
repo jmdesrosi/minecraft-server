@@ -39,7 +39,7 @@ resource "digitalocean_droplet" "minecraft" {
   image              = "docker-20-04"
   name               = "minecraft"
   region             = "lon1"
-  size               = "m-4vcpu-32gb"
+  size               = "so-2vcpu-16gb"
   private_networking = false
   ssh_keys = [
     "${var.ssh_fingerprint}",
