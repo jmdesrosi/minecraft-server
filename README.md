@@ -82,3 +82,4 @@ If you have an issue on Mac whereby the DNS is pointing to the wrong IP, you can
 `sudo killall -HUP mDNSResponder`  
 Keep in mind that the TTL (Time To Live) of DNS entries is set to 1800 or 30 minutes.  This means that if you are frequently provisioning the server to test, it might take some time for the DNS to properly reflect the latest IP address.
 
+# ModdedMinecraftServer-DiscordGroup
