@@ -1,18 +1,29 @@
+const fs = require('fs');
+const yaml = require('js-yaml');
 const Gamedig = require('gamedig');
 const { spawn } = require('child_process');
 const SingleInstance = require('single-instance');
 
 const process_lock  = new SingleInstance('minecraft-monitoring');
-const config = require('./minecraft.tfvars.json');
 
-const check_interval = config.check_interval * 1000; //Convert from sec to ms
-const shutdown_timeout = config.shutdown_timeout * 1000; //Convert from sec to ms
-const terraform = config.terraform || 'terraform';
+let monitorConfig;
+let baseConfig;
+try {
+	let monitorYaml = fs.readFileSync('./vars/minecraft-monitor.yml', 'utf8');
+	let baseYaml = fs.readFileSync('./vars/minecraft.yml', 'utf8');
+	monitorConfig = yaml.loadAll(monitorYaml)[0].input;
+	baseConfig = yaml.loadAll(baseYaml)[0].input;
+} catch (e) {
+    console.log(e);
+}
+
+const check_interval = monitorConfig.check_interval * 1000; //Convert from sec to ms
+const shutdown_timeout = monitorConfig.shutdown_timeout * 1000; //Convert from sec to ms
 
 function shutdownServer() {
 	console.log("\nShutting down server.");
 
-	const ls = spawn(terraform, ['destroy', '-auto-approve', '-var-file=./minecraft.tfvars.json']);
+	const ls = spawn('/usr/local/bin/ansible-playbook', ["playbook.yml", "--extra-vars='{ \"destroy\":true }'"], { cwd: process.cwd()+'/ansible' });
 
 	ls.stdout.on('data', (data) => {
 	  console.log(`stdout: ${data}`);
@@ -31,7 +42,7 @@ function shutdownServer() {
 function checkServerPopulation() {
     Gamedig.query({
 		type: 'minecraftping',
-		host: config.domain_name
+		host: baseConfig.domain_name
 	}).then((state) => {
 		console.log("There are " + state.players.length + " players online.");
 		if (state.players.length == 0) {
@@ -51,19 +62,18 @@ function checkServerPopulation() {
 			}
 		}
 	}).catch((error) => {
-		console.log("Server " + config.domain_name + " is offline");
+		console.log(error);
+		console.log("Server " + baseConfig.domain_name + " is offline");
 	});	
 }
 
 var timeoutObject = null;
 process_lock.lock().then(() => {
-	console.log("\nStarting to monitor server " + config.domain_name);
+	console.log("\nStarting to monitor server " + baseConfig.domain_name);
     setInterval(function () {
 		checkServerPopulation();
 	}, check_interval); 
 }).catch(err => {
-	console.log(err); // it will print out 'An application is already running'
+	console.log(err); 
 	process.exit();
 });
-
-

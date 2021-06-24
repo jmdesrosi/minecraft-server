@@ -5,16 +5,15 @@
   "author": "Luc Desrosiers",
   "license": "Apache 2.0",
   "dependencies": {
-    "single-instance": "0.0.1",
     "gamedig": "^1.0.46",
-    "terraform-npm": "^0.2.6"
+    "js-yaml": "^4.0.0",
+    "single-instance": "0.0.1"
   },
   "main": "minecraft-server.js",
   "scripts": {
-    "postinstall": "terraform init",
     "monitor": "node minecraft-server.js &",
-    "apply": "terraform apply -auto-approve -var-file=./minecraft.tfvars.json",
-    "destroy": "terraform destroy -auto-approve -var-file=./minecraft.tfvars.json",
+    "apply": "cd ansible && ansible-playbook playbook.yml; cd ..",
+    "destroy": "cd ansible && ansible-playbook playbook.yml --extra-vars='{\"destroy\":true}'; cd ..",
     "start": "npm run apply",
     "stop": "npm run destroy",
     "poststart": "npm run monitor"

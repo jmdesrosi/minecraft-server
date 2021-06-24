@@ -1,0 +1,186 @@
+#################################################
+# Minecraft Server Playbooks
+#################################################
+---
+- hosts: localhost
+  vars_files:
+    - ../vars/minecraft.yml
+
+  tasks:
+    - name: Create minecraft server
+      digital_ocean_droplet:
+        oauth_token: "{{ input.do_token }}"
+        unique_name: yes 
+        region: lon1 
+        image: docker-20-04 
+        wait: yes
+        name: minecraft-server 
+        size_id: so-2vcpu-16gb 
+        state: present
+        ssh_keys: [ "{{ input.ssh_key }}" ] 
+      register: server
+
+    - name: Associate Droplet with domain
+      digital_ocean_domain:
+        oauth_token: "{{ input.do_token }}"
+        state: present
+        name: "{{ input.domain_name }}"
+        ip: "{{ server.data.ip_address }}"
+
+    - name: Add hosts
+      add_host:
+        name: "{{ server.data.ip_address }}"
+        groups: "do"
+
+- hosts: all
+  remote_user: root
+  gather_facts: no
+
+  tasks:
+    - name: Wait 120 seconds for target connection to become reachable/usable
+      wait_for_connection:
+        timeout: 120
+
+- hosts: all
+  remote_user: root
+  vars_files:
+    - ../vars/minecraft.yml
+
+  handlers:
+    - name: restart ssh
+      service:
+        name=sshd
+        state=restarted
+
+  tasks:
+    - name: Create new group
+      group:
+        name: steve
+
+    - name: Create the user steve user
+      user:
+        name: steve
+        shell: /bin/bash
+        groups: steve,docker
+
+    - name: Create .ssh folder
+      file:
+        path: /home/steve/.ssh
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0700
+
+    - name: Upload SSH key for steve
+      copy:
+        src: "{{ input.git_pvt_key }}"
+        dest: /home/steve/.ssh/id_rsa
+        owner: steve
+        group: steve
+        mode: 0700    
+
+    - name: Set authorized key for user steve from file
+      authorized_key:
+        user: steve
+        state: present
+        key: "{{ lookup('file', '{{ input.ssh_pub }}') }}"
+
+    - name: Create minecraft world directory
+      file: 
+        path: /src/minecraft/world
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0755
+
+    - name: Create minecraft script directory
+      file: 
+        path: /src/minecraft/script
+        state: directory
+        owner: steve
+        group: steve
+        mode: 0755
+
+    - name: Upload scripts to server
+      copy:
+        src: "{{ item }}"
+        dest: /src/minecraft/script
+        owner: steve
+        group: steve
+        mode: 0755     
+      with_fileglob:
+        - "../server_script/*.sh"
+
+    - name: Upload service definition to server
+      copy:
+        src: ../server_script/minecraft-docker.service
+        dest: /etc/systemd/system/
+        owner: steve
+        group: steve
+        mode: 0755     
+
+    - name: Setup default git configuraiton
+      git_config:
+        name="{{ item.name }}"
+        scope=global
+        value="{{ item.value }}"
+      with_items:
+        - {name: "user.name",  value: "Minecraft" }
+        - {name: "user.email", value: "minecraft@{{ ansible_fqdn }}" }
+        - {name: "ui.color", value: True }
+      become: Yes
+      become_user: steve
+
+    - name: Setup local server.env
+      copy:
+        content: "export RCON_PASSWORD={{ input.rcon_passwd }}"
+        dest: "/src/minecraft/script/server.env"
+
+    - name: Download repository locally
+      git:
+        repo: "{{ input.world_repo }}"
+        dest: /src/minecraft/world
+        clone: yes
+        accept_hostkey: true
+      ignore_errors: yes
+      become: yes
+      become_user: steve
+
+    - name: Disable Password Authentication
+      lineinfile:
+            dest=/etc/ssh/sshd_config
+            regexp='^PasswordAuthentication'
+            line="PasswordAuthentication no"
+            state=present
+            backup=yes
+      notify:
+        - restart ssh
+
+    - name: Enable service minecraft-docker 
+      systemd:
+        name: minecraft-docker
+        enabled: yes
+        state: started
+
+    - name: Shutdown the minecraft server
+      community.general.shutdown:
+        delay: 0
+      when: destroy is defined
+
+    #- name: Shutdown the minecraft server
+    #  shell: /src/minecraft/script/shutdown.sh
+    #  when: destroy is defined
+
+- hosts: localhost
+  vars_files:
+    - ../vars/minecraft.yml
+
+  tasks:
+    - name: Delete the minecraft server
+      digital_ocean_droplet:
+        oauth_token: "{{ input.do_token }}"
+        id: "{{ server.data.droplet.id }}"
+        wait: yes
+        name: minecraft-server  
+        state: absent
+      when: destroy is defined

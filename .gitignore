@@ -11,3 +11,5 @@
 **/node_modules/
 **/*.tfvars*
 **/package-lock.json
+**/*.hcl
+**/vars/minecraft.yml

@@ -1,6 +1,0 @@
----
-- hosts: all
-
-  tasks:
-    - name: Shutdown minecraft container
-      command: bash /src/minecraft/script/shutdown.sh

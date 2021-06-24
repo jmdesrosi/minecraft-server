@@ -1,0 +1,15 @@
+[Unit]
+Description=Run my minecraft save task at shutdown
+Requires = network.target
+After = network.target
+
+[Service]
+Type=oneshot
+User=steve
+RemainAfterExit=true
+ExecStart=/src/minecraft/script/startup.sh
+ExecStop=/src/minecraft/script/shutdown.sh
+TimeoutStopSec=900
+
+[Install]
+WantedBy=multi-user.target

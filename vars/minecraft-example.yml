@@ -1,0 +1,8 @@
+input:
+  do_token: "Digital Ocean API Token"
+  ssh_key: "Path to the Private SSH Key (Personal)"
+  ssh_pub: "Path to the Public SSH Key (Personal)"
+  git_pvt_key: "Path to the Private SSH Key (Minecraft)"
+  domain_name: "Domain Name (exampleDomain.com)"
+  world_repo: "git@github.com:<user>/<repo>.git"
+  rcon_passwd: "A password for the RCON access."
